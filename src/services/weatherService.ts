@@ -5,7 +5,7 @@ import { WeatherData } from '../types/weather';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 export const fetchWeatherData = async (lat: number, lon: number): Promise<WeatherData> => {
-  const API_KEY = localStorage.getItem('weatherApiKey') || '';
+  const apiKey = localStorage.getItem('weatherApiKey') || '';
   
   try {
     // Get current weather
@@ -13,7 +13,7 @@ export const fetchWeatherData = async (lat: number, lon: number): Promise<Weathe
       params: {
         lat,
         lon,
-        appid: API_KEY,
+        appid: apiKey,
         units: 'metric',
       },
     });
@@ -23,7 +23,7 @@ export const fetchWeatherData = async (lat: number, lon: number): Promise<Weathe
       params: {
         lat,
         lon,
-        appid: API_KEY,
+        appid: apiKey,
         units: 'metric',
         exclude: 'minutely,hourly',
       },
@@ -62,14 +62,14 @@ export const fetchWeatherData = async (lat: number, lon: number): Promise<Weathe
 };
 
 export const searchLocation = async (query: string) => {
-  const API_KEY = localStorage.getItem('weatherApiKey') || '';
+  const apiKey = localStorage.getItem('weatherApiKey') || '';
   
   try {
     const response = await axios.get('https://api.openweathermap.org/geo/1.0/direct', {
       params: {
         q: query,
         limit: 5,
-        appid: API_KEY,
+        appid: apiKey,
       },
     });
     
