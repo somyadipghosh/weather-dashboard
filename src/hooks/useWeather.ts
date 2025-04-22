@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import { fetchWeatherData, searchLocation } from '../services/weatherService';
 import { WeatherData, SavedLocation } from '../types/weather';
 import { useLocalStorage } from './useLocalStorage';
+import { useToast } from '@/components/ui/use-toast';
 
 export const useWeather = () => {
+  const { toast } = useToast();
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +58,21 @@ export const useWeather = () => {
   };
 
   const saveApiKey = (key: string) => {
-    setApiKey(key);
+    // Basic validation for OpenWeatherMap API key
+    const trimmedKey = key.trim();
+    if (trimmedKey && trimmedKey.length > 10) {
+      setApiKey(trimmedKey);
+      toast({
+        title: "API Key Saved",
+        description: "Your OpenWeatherMap API key has been successfully saved.",
+      });
+    } else {
+      toast({
+        title: "Invalid API Key",
+        description: "Please enter a valid OpenWeatherMap API key.",
+        variant: "destructive"
+      });
+    }
   };
   
   return {
