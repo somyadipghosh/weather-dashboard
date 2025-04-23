@@ -19,14 +19,14 @@ export const fetchWeatherData = async (lat: number, lon: number): Promise<Weathe
       },
     });
     
-    // Get forecast data
-    const forecastResponse = await axios.get(`${BASE_URL}/onecall`, {
+    // Use the OneCall API for forecast data
+    const forecastResponse = await axios.get(`${BASE_URL}/forecast`, {
       params: {
         lat,
         lon,
         appid: apiKey,
         units: 'metric',
-        exclude: 'minutely,hourly',
+        cnt: 7, // Get 7 days of forecast
       },
     });
     
@@ -44,21 +44,22 @@ export const fetchWeatherData = async (lat: number, lon: number): Promise<Weathe
         wind_speed: currentResponse.data.wind.speed,
         weather: currentResponse.data.weather[0],
       },
-      forecast: forecastResponse.data.daily.slice(0, 7).map((day: any) => ({
-        dt: day.dt,
+      forecast: forecastResponse.data.list.slice(0, 7).map((item: any) => ({
+        dt: item.dt,
         temp: {
-          day: day.temp.day,
-          min: day.temp.min,
-          max: day.temp.max,
+          day: item.main.temp,
+          min: item.main.temp_min,
+          max: item.main.temp_max,
         },
-        weather: day.weather[0],
+        weather: item.weather[0],
       })),
     };
     
+    console.log('Weather data fetched successfully:', weatherData);
     return weatherData;
-  } catch (error) {
-    console.error('Error fetching weather data:', error);
-    throw new Error('Failed to fetch weather data. Please try again.');
+  } catch (error: any) {
+    console.error('Error fetching weather data:', error.response?.data || error.message);
+    throw new Error('Failed to fetch weather data. Please check your API key and try again.');
   }
 };
 
@@ -81,8 +82,8 @@ export const searchLocation = async (query: string) => {
       lat: location.lat,
       lon: location.lon,
     }));
-  } catch (error) {
-    console.error('Error searching location:', error);
-    throw new Error('Failed to search location. Please try again.');
+  } catch (error: any) {
+    console.error('Error searching location:', error.response?.data || error.message);
+    throw new Error('Failed to search location. Please check your API key and try again.');
   }
 };

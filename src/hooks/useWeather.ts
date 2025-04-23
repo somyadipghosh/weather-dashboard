@@ -18,10 +18,32 @@ export const useWeather = () => {
     try {
       setIsLoading(true);
       setError(null);
+      
+      if (!apiKey) {
+        setError('Please enter an API key to fetch weather data.');
+        setIsLoading(false);
+        return;
+      }
+      
       const data = await fetchWeatherData(lat, lon);
       setWeatherData(data);
+      
+      // Auto-save location if it's not already saved
+      if (data.location && data.location.name) {
+        const newLocation = {
+          name: data.location.name,
+          country: data.location.country,
+          lat,
+          lon,
+        };
+        
+        if (!savedLocations.some(loc => loc.lat === lat && loc.lon === lon)) {
+          saveLocation(newLocation);
+        }
+      }
     } catch (err) {
-      setError('Failed to fetch weather data. Please try again.');
+      console.error('Error in getWeatherByCoords:', err);
+      setError('Failed to fetch weather data. Please check your API key and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -31,10 +53,18 @@ export const useWeather = () => {
     try {
       setIsLoading(true);
       setError(null);
+      
+      if (!apiKey) {
+        setError('Please enter an API key to search for locations.');
+        setIsLoading(false);
+        return;
+      }
+      
       const results = await searchLocation(query);
       setSearchResults(results);
     } catch (err) {
-      setError('Failed to search for location. Please try again.');
+      console.error('Error in searchForLocation:', err);
+      setError('Failed to search for location. Please check your API key and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -64,14 +94,18 @@ export const useWeather = () => {
       setApiKey(trimmedKey);
       toast({
         title: "API Key Saved",
-        description: "Your OpenWeatherMap API key has been successfully saved.",
+        description: "Your OpenWeatherMap API key has been successfully saved. It may take a few minutes to activate.",
+        duration: 5000,
       });
+      return true;
     } else {
       toast({
         title: "Invalid API Key",
         description: "Please enter a valid OpenWeatherMap API key.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 5000,
       });
+      return false;
     }
   };
   
